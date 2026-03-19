@@ -8,7 +8,20 @@ soup = BeautifulSoup(response.content, "html.parser")
 conn = sqlite3.connect("hockey.db")
 cursor = conn.cursor()
 
-create_sql = ""
+create_sql = """
+CREATE TABLE hockey_teams (
+    id INTEGER PRIMARY KEY,
+    team_name VARCHAR(50),
+    year INTEGER,
+    wins INTEGER,
+    losses INTEGER,
+    ot_losses INTEGER,
+    win DECIMAL(5,2),
+    goals_for INTEGER,
+    goals_against INTEGER,
+    plus_minus INTEGER
+);
+"""
 
 sql_text = """
 INSERT INTO hockey_teams 
@@ -18,6 +31,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 
 rows = soup.find_all("tr")
 
+cursor.execute(create_sql)
 def to_int(x):
     return int(x) if x else None
 
@@ -42,5 +56,8 @@ for row in rows:
 
         cursor.execute(sql_text, data)
 
+cursor.execute("SELECT * FROM hockey_teams;")
+data = cursor.fetchall()
+print(data)
 conn.commit()
 conn.close()
